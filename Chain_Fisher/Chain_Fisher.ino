@@ -138,7 +138,13 @@ void menu() {
   display.println(highScore);
   display.display();    // Display on LCD
   
-  while (digitalRead(up_button) == HIGH) {      // Loop until user presses button
+  delay(300);
+  
+  while (digitalRead(up_button) == HIGH) {
+    //Do nothing
+    delay(5);
+  }
+  while (digitalRead(up_button) == LOW) {      // Loop until user presses button
     //Do nothing
     delay(5);
   }
@@ -218,10 +224,11 @@ void gameOver() {
     delay(5);
   }
   
-  delay(500);
   
-  if (digitalRead(up_button) == LOW) {
-    menu();
+  while (digitalRead(up_button) == HIGH) {
+    // Do nothing
+    delay(5);
   }
   
+  menu();
 }
