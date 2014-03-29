@@ -30,6 +30,12 @@ byte x_axis = A0;
 byte y_axis = A1;
 byte buttons[] = {up_button, down_button, left_button, right_button, start_button, select_button, analog_button};
 
+int highScore = 0; // Scores high score retrieved from EEPROM
+int score = 0;     // Current user score
+int timeStart = 0; // To store millis()
+int timeEnd = 0;    // To store time in which user has to press A and reel in fish
+boolean hooked = false;  // To see is fish is hooked
+
 // Below are the bitmaps used in this game.
 
 //------------------------------------------------------------------------------
@@ -117,18 +123,105 @@ void setup() {
   display.setContrast(50);
   delay(500);
   display.clearDisplay();   // clears the screen and buffer
-  
+  menu();
+}
+
+void menu() {
+  display.clearDisplay();   // clears the screen and buffer
   display.drawBitmap(5, 1, start, 75, 27, BLACK); // Display Start screen bitmap
   display.setTextSize(1);
   display.setTextColor(BLACK, WHITE);
-  display.setCursor(75, 27);
-  display.println("Press A");
+  display.setCursor(18, 30);
+  display.println("Press A");  // Print text
+  highScore = EEPROM.read(0);
+  display.print("High Score: ");
+  display.println(highScore);
+  display.display();    // Display on LCD
   
+  while (digitalRead(up_button) == HIGH) {      // Loop until user presses button
+    //Do nothing
+    delay(5);
+  }
+  display.setCursor(0, 30);
+  display.setTextSize(2);
+  display.print(" READY?");
   display.display();
-
+  delay(2000);
+  score = 0; // reset score
+  loop();
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  hooked = false;    // Reset hooked variable
+  
+  display.clearDisplay();
+  display.drawBitmap(0, 4, fisherman, 84, 44, BLACK);    // Display fisherman bitmap
+  display.setCursor(0, 40);
+  display.setTextSize(1);
+  display.print(score);
+  display.display();
+  
+  timeEnd = millis() + 4000;    // millis() + delay when nothing is shown (will be random in the future).
+  while (millis() < timeEnd) {
+    if (digitalRead(up_button) == LOW) {
+      gameOver();
+    }
+  }
+  
+  display.setCursor(0, 0);
+  display.setTextSize(1);
+  display.println("!");    // Show on screen that a fish is hooked
+  display.display();
+  delay(10);          // Delay to make sure that the screen is showing the '!' before the timer starts
+  
+  timeEnd = millis() + 2000;    // millis() + delay the user has to press A.
+  
+  while (millis() < timeEnd) {
+    if (digitalRead(up_button) == LOW) {
+      hooked = true;    // Fish hooked
+      timeEnd = millis() - 10;
+    }
+  }
+  
+  if (hooked == false) {
+    gameOver();
+  } else {
+    score++;
+  }
+  
+  while (digitalRead(up_button) == LOW) {    // this is to stop the game to go to gameover quickly
+    // Do nothing
+    delay(5);
+  }
+  
+}
 
+void gameOver() {
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(BLACK, WHITE);
+  display.setCursor(0, 0);
+  display.println("Game End");  // Print text
+  display.println(score);
+  
+  if (score > highScore) {
+    EEPROM.write(0, score);      // Save score on EEPROM
+            // Add check to make sure score is a byte (0<score<255)
+    display.println("New high score saved!");
+  }
+  
+  display.println("Press A");
+  display.display();
+  
+  while (digitalRead(up_button) == LOW) {
+    // Do nothing
+    delay(5);
+  }
+  
+  delay(500);
+  
+  if (digitalRead(up_button) == LOW) {
+    menu();
+  }
+  
 }
