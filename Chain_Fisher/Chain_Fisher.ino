@@ -4,6 +4,7 @@
   Chain Fisher
 */
 
+#include <EEPROM.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_PCD8544.h>
 
@@ -122,6 +123,7 @@ void setup() {
   display.setTextColor(BLACK, WHITE);
   display.setCursor(75, 27);
   display.println("Press A");
+  
   display.display();
 
 }
