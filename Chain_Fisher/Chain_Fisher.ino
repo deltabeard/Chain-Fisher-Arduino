@@ -138,13 +138,7 @@ void menu() {
   display.println(highScore);
   display.display();    // Display on LCD
   
-  delay(300);
-  
-  while (digitalRead(up_button) == HIGH) {
-    //Do nothing
-    delay(5);
-  }
-  while (digitalRead(up_button) == LOW) {      // Loop until user presses button
+  while (digitalRead(up_button) == HIGH) {      // Loop until user presses button
     //Do nothing
     delay(5);
   }
