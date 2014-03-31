@@ -2,6 +2,8 @@
   2014 Mahyar Koshkouei
   
   Chain Fisher
+  
+  Serial has been added for debugging.
 */
 
 #include <EEPROM.h>
@@ -33,7 +35,7 @@ byte buttons[] = {up_button, down_button, left_button, right_button, start_butto
 int highScore = 0; // Scores high score retrieved from EEPROM
 int score = 0;     // Current user score
 int timeStart = 0; // To store millis()
-int timeEnd = 0;    // To store time in which user has to press A and reel in fish
+long timeEnd = 0;    // To store time in which user has to press A and reel in fish
 boolean hooked = false;  // To see is fish is hooked
 
 // Below are the bitmaps used in this game.
@@ -115,6 +117,9 @@ void setup() {
    digitalWrite(buttons[i], HIGH);
   }
   
+  // initialize serial communications at 9600 bps:
+  Serial.begin(9600);
+  
   display.begin();
   // init done
 
@@ -123,6 +128,9 @@ void setup() {
   display.setContrast(50);
   delay(500);
   display.clearDisplay();   // clears the screen and buffer
+  
+  Serial.println("Setup done");
+  
   menu();
 }
 
@@ -138,16 +146,16 @@ void menu() {
   display.println(highScore);
   display.display();    // Display on LCD
   
-  while (digitalRead(up_button) == HIGH) {      // Loop until user presses button
-    //Do nothing
-    delay(5);
-  }
+  Serial.println("Menu On screen");
+  
+  buttonPress();
   display.setCursor(0, 30);
   display.setTextSize(2);
   display.print(" READY?");
   display.display();
   delay(2000);
   score = 0; // reset score
+  Serial.println("Begin game");
   loop();
 }
 
@@ -161,6 +169,8 @@ void loop() {
   display.print(score);
   display.display();
   
+  Serial.println("Score displayed, before while loop when nothing is shown");
+  
   timeEnd = millis() + 4000;    // millis() + delay when nothing is shown (will be random in the future).
   while (millis() < timeEnd) {
     if (digitalRead(up_button) == LOW) {
@@ -168,11 +178,15 @@ void loop() {
     }
   }
   
+  Serial.println("Before exclamation mark appearing");
+  
   display.setCursor(0, 0);
   display.setTextSize(1);
   display.println("!");    // Show on screen that a fish is hooked
   display.display();
   delay(10);          // Delay to make sure that the screen is showing the '!' before the timer starts
+  
+  Serial.println("Before delay user has to press '!'");
   
   timeEnd = millis() + 2000;    // millis() + delay the user has to press A.
   
@@ -182,6 +196,8 @@ void loop() {
       timeEnd = millis() - 10;
     }
   }
+  
+  Serial.println("After '!' delay");
   
   if (hooked == false) {
     gameOver();
@@ -197,6 +213,7 @@ void loop() {
 }
 
 void gameOver() {
+  Serial.println("GameOver");
   display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(BLACK, WHITE);
@@ -213,16 +230,20 @@ void gameOver() {
   display.println("Press A");
   display.display();
   
-  while (digitalRead(up_button) == LOW) {
-    // Do nothing
-    delay(5);
-  }
-  
-  
-  while (digitalRead(up_button) == HIGH) {
-    // Do nothing
-    delay(5);
-  }
+  buttonPress();
   
   menu();
+}
+
+void buttonPress() {
+  Serial.println("Button press");
+  while (digitalRead(up_button) == HIGH) {
+    delay(5);
+  }
+  Serial.println("HIGH");
+  
+    while (digitalRead(up_button) == LOW) {
+    delay(5);
+  }
+  Serial.println("LOW");
 }
