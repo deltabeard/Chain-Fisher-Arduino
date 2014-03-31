@@ -35,6 +35,7 @@ byte buttons[] = {up_button, down_button, left_button, right_button, start_butto
 int highScore = 0; // Scores high score retrieved from EEPROM
 int score = 0;     // Current user score
 int timeStart = 0; // To store millis()
+int randDelay;     // Stores random delay
 long timeEnd = 0;    // To store time in which user has to press A and reel in fish
 boolean hooked = false;  // To see is fish is hooked
 
@@ -129,6 +130,12 @@ void setup() {
   delay(500);
   display.clearDisplay();   // clears the screen and buffer
   
+  // if analog input pin 0 is unconnected, random analog
+  // noise will cause the call to randomSeed() to generate
+  // different seed numbers each time the sketch runs.
+  // randomSeed() will then shuffle the random function.
+  randomSeed(analogRead(0));
+  
   Serial.println("Setup done");
   
   menu();
@@ -171,7 +178,9 @@ void loop() {
   
   Serial.println("Score displayed, before while loop when nothing is shown");
   
-  timeEnd = millis() + 4000;    // millis() + delay when nothing is shown (will be random in the future).
+  randDelay = random(1500, 6000);
+  
+  timeEnd = millis() + randDelay;    // millis() + delay when nothing is shown (will be random in the future).
   while (millis() < timeEnd) {
     if (digitalRead(up_button) == LOW) {
       gameOver();
@@ -181,14 +190,14 @@ void loop() {
   Serial.println("Before exclamation mark appearing");
   
   display.setCursor(0, 0);
-  display.setTextSize(1);
+  display.setTextSize(2);
   display.println("!");    // Show on screen that a fish is hooked
   display.display();
   delay(10);          // Delay to make sure that the screen is showing the '!' before the timer starts
   
   Serial.println("Before delay user has to press '!'");
   
-  timeEnd = millis() + 2000;    // millis() + delay the user has to press A.
+  timeEnd = millis() + 1000;    // millis() + delay the user has to press A.
   
   while (millis() < timeEnd) {
     if (digitalRead(up_button) == LOW) {
@@ -226,6 +235,8 @@ void gameOver() {
             // Add check to make sure score is a byte (0<score<255)
     display.println("New high score saved!");
   }
+  
+  delay(1000);    // Gives time for the player to remove his/her finger from the button
   
   display.println("Press A");
   display.display();
