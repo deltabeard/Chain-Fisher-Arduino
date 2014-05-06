@@ -10,7 +10,7 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_PCD8544.h>
 
-// Below are hte usual pins for connecting to a Nokia 5110 LCD
+// Below are the usual pins for connecting to a Nokia 5110 LCD
 // pin 7 - Serial clock out (SCLK)
 // pin 6 - Serial data out (DIN)
 // pin 5 - Data/Command select (D/C)
